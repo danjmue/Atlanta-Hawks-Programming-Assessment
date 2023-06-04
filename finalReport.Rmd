@@ -1,0 +1,77 @@
+---
+title: "Atlanta Hawks Programming Assessment - Daniel Mueller"
+output: "pdf_document"
+fontsize: 11pt
+---
+
+\vspace{-1.5cm}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Loading tidyverse
+library(tidyverse)
+# Loading knitr to present tables and data frames in output
+library(knitr)
+# Loading ggpubr to add correlation coefficient to plots
+library(ggpubr)
+
+# Loading in the data
+read.csv('nbaplayersdraft.csv') -> data
+```
+
+## Data Comprehension
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Run script for Part 1: Data Comprehension
+# This script creates the tables and plots for output
+source('dataComprehension.R')
+```
+
+The teams who have drafted the most players in or before 2000 from Duke are DAL, MIN, and PHO, with each having drafted two of such players. Meanwhile, the teams who have drafted the most players in an even year who have a first name beginning with 'D' are BOS, MIL, and SEA, with each having seven qualified draftees. 
+
+In order to describe the relationship between a team's first round pick slot one season and their pick slot the subsequent season I had to make a number of assumptions. First, to filter the data down to only first round picks, I assumed that the number of first round picks in each draft is equal to the number of teams in the NBA in the given draft year. This value is 27 prior to 1995, 29 prior to 2004, and 30 otherwise. Additionally, in years where a team had multiple first round picks, I assigned the first of those picks as their pick slot. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width="25%"}
+# Plotting relationship between first round pick slot and subsequent year
+pick_slot_plot1
+pick_slot_plot2
+pick_slot_plot3
+pick_slot_plot4
+```
+
+From the left plot, there is a moderate positive correlation between a team's first round pick slot in one season and their first round pick slot in the subsequent season, with a correlation coefficient of 0.46. There is also a notable lack of data points in the upper left and lower right corners of the graph. Intuitively, this makes sense, as teams picking first overall are unlikely to make a jump to championship contenders over the course of one season and vice versa.
+
+Plotting the average change in pick slot, we can also see that teams with a pick below 14 are expected to perform better and draft later in the next season, with the opposite happening for teams with a pick slot above 14. This is confirmed in the data, as the mean change in pick slot for the bottom 50% of draft positions is 3.779528 while the mean change in pick slot for the top 50% is -3.974432.
+
+## Analytical Acumen
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Run script for Part 2: Analytical Acumen
+# This script creates the tables and plots for output
+source('analyticalAcumen.R')
+```
+
+Since the provided data includes a number of career statistics for each of the drafted players, I chose to utilize them in order to create a value for each draft pick. Specifically, I chose win shares and value over replacement because they are both all-encompassing measures that take into account each aspect of a player's game. I calculated the averages of both statistics for each draft position. Plotting the draft position against these averages revealed a relationship that seemed non-linear. Thus, I took the logarithm of both and ran a linear regression on them. I then fed the pick positions through the regression, applying the exponential function to the result to create an expected value/win shares for each draft slot.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width="25%"}
+# Plotting relationships between pick position and value / win shares
+value_plot1
+value_plot2
+value_plot3
+value_plot4
+```
+
+Among the teams who have overperformed the most when drafting are NOH, SEA, and CHH. Teams who have underperformed the most are NOK, CHO, and NOP. Moving to college teams, the biggest overperformers are Davidson, Santa Clara, and Weber State, while the biggest underperformers are University of the Pacific, Wright State University, and Loyola Marymount. However, the reason many of these schools have such high or low expected values is due to small sample size and each having only one or two players in the data, with these players having a strong difference between their expected and actual values (Steph Curry from Davidson for example). Hence, after filtering out schools with less than six players, the biggest overperformers are Wake Forest, Marquette, and Arizona State while the biggest underperformers are Seton Hall, Texas Tech, and Baylor.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Output table of over and underperforming teams
+teams_over_under_performers %>%
+  slice(1:3,36:38) %>%
+  kable()
+# Output table of over and underperforming colleges
+college_over_under_performers_filtered %>%
+  slice(1:3, 74:76) %>%
+  kable()
+```
+
+If given the opportunity to further investigate value of draft positioning, I would like to explore other variables that may influence whether or not a player will overperform their expected value. This may be categorical information similar to a player's school or it could be numerical information like a player's college statistics. As a result, it would give me the opportunity to uncover trends that may help a team make better decisions during the draft process. I would also like to see which teams and colleges have over and underperformed during different eras of the NBA, as the game has evolved over the years so splitting up the data may provide a better picture of how each franchise and university's players have turned out.
+
